@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vulnerability Scanner Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .pass { background: #90EE90; }
+        .fail { background: #FFB6C6; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Vulnerability Scanner - Integration Tests</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+        async function runTests() {
+            const results = document.getElementById('results');
+            let passed = 0, failed = 0;
+            
+            async function test(name, fn) {
+                try {
+                    await fn();
+                    addResult(name, true, '');
+                    passed++;
+                } catch (e) {
+                    addResult(name, false, e.message);
+                    failed++;
+                }
+            }
+            
+            function addResult(name, pass, msg) {
+                const div = document.createElement('div');
+                div.className = `test ${pass ? 'pass' : 'fail'}`;
+                div.innerHTML = `<strong>${pass ? '✓' : '✗'} ${name}</strong>${msg ? '<br>' + msg : ''}`;
+                results.appendChild(div);
+            }
+            
+            // Test 1: Health endpoint
+            await test('Health endpoint', async () => {
+                const response = await fetch('/health');
+                if (!response.ok) throw new Error(`Status ${response.status}`);
+                const data = await response.json();
+                if (!data.status) throw new Error('No status in response');
+            });
+            
+            // Test 2: API info endpoint
+            await test('API info endpoint', async () => {
+                const response = await fetch('/api');
+                if (!response.ok) throw new Error(`Status ${response.status}`);
+                const data = await response.json();
+                if (!data.service) throw new Error('No service info');
+            });
+            
+            // Test 3: Demo endpoint
+            await test('Demo endpoint', async () => {
+                const response = await fetch('/demo');
+                if (!response.ok) throw new Error(`Status ${response.status}`);
+                const data = await response.json();
+                if (!data.vulnerabilities) throw new Error('No vulnerabilities in demo');
+            });
+            
+            // Test 4: Frontend loads
+            await test('Frontend HTML loads', async () => {
+                const response = await fetch('/');
+                if (!response.ok) throw new Error(`Status ${response.status}`);
+                const html = await response.text();
+                if (!html.includes('Checkmate')) throw new Error('Frontend not found');
+            });
+            
+            // Test 5: Security headers
+            await test('Security headers present', async () => {
+                const response = await fetch('/');
+                const headers = {
+                    'content-security-policy': response.headers.get('content-security-policy'),
+                    'x-frame-options': response.headers.get('x-frame-options'),
+                    'x-content-type-options': response.headers.get('x-content-type-options'),
+                    'strict-transport-security': response.headers.get('strict-transport-security'),
+                };
+                
+                const missing = Object.entries(headers)
+                    .filter(([name, value]) => !value)
+                    .map(([name]) => name);
+                
+                if (missing.length > 0) {
+                    throw new Error('Missing headers: ' + missing.join(', '));
+                }
+            });
+            
+            // Test 6: Scan endpoint
+            await test('Scan endpoint accepts requests', async () => {
+                const response = await fetch('/scan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({url: 'httpbin.org'})
+                });
+                
+                if (!response.ok) throw new Error(`Status ${response.status}`);
+                const data = await response.json();
+                if (!('success' in data)) throw new Error('No success field in response');
+                if (!data.success && !data.error) throw new Error('No error message on failure');
+            });
+            
+            // Summary
+            const summary = document.createElement('div');
+            summary.style = 'margin-top: 20px; padding: 10px; border: 2px solid #333; font-weight: bold;';
+            summary.innerHTML = `Tests Passed: ${passed} | Tests Failed: ${failed}`;
+            if (failed === 0) {
+                summary.style.background = '#90EE90';
+                summary.innerHTML += '<br>✓ ALL TESTS PASSED!';
+            } else {
+                summary.style.background = '#FFB6C6';
+            }
+            results.appendChild(summary);
+        }
+        
+        // Run tests on page load
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSecScan</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Icon Sprite Sheet -->
+    <svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <symbol id="icon-search" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+            </symbol>
+            <symbol id="icon-lightbulb" viewBox="0 0 24 24">
+                <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+                <path d="M9 18h6"/>
+                <path d="M10 22h4"/>
+            </symbol>
+        </defs>
+    </svg>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: #eaeaea;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+        }
+        .input-section {
+            margin: 20px;
+        }
+        .vulnerability-card {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .loading {
+            display: none;
+        }
+
+        /* Professional Icon Styles */
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: middle;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            stroke: #00d9ff;
+            margin-right: 12px;
+        }
+
+        .recommendation-icon {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            stroke: #00ff41;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>WebSecScan</h1>
+        <p>Your security vulnerability scanner</p>
+    </div>
+    <div class="input-section text-center">
+        <input type="text" id="urlInput" class="form-control" placeholder="Enter URL to scan" required>
+        <button id="scanButton" class="btn btn-success mt-2">Scan Now</button>
+        <div class="loading mt-2">
+            <div class="spinner-border text-light" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <div id="results" class="container mt-4"></div>
+    <div class="footer">
+        <p>GitHub: <a href="#" class="text-light">Your GitHub Link</a></p>
+    </div>
+    <script>
+        document.getElementById('scanButton').addEventListener('click', function() {
+            const url = document.getElementById('urlInput').value;
+            const loadingSpinner = document.querySelector('.loading');
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.innerHTML = '';
+            loadingSpinner.style.display = 'block';
+
+            fetch('/scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingSpinner.style.display = 'none';
+                displayResults(data);
+            })
+            .catch(error => {
+                loadingSpinner.style.display = 'none';
+                console.error('Error:', error);
+            });
+        });
+
+        function displayResults(data) {
+            const resultsContainer = document.getElementById('results');
+            const summary = `<h3>Total Vulnerabilities Found: ${data.total}</h3>`;
+            resultsContainer.innerHTML += summary;
+
+            data.vulnerabilities.forEach(vuln => {
+                const severityClass = getSeverityClass(vuln.severity);
+                const card = `<div class="vulnerability-card bg-${severityClass}">
+                    <h5>${vuln.type} <span class="badge bg-${severityClass}">${vuln.severity}</span></h5>
+                    <p>${vuln.description}</p>
+                    <p><strong>Recommendation:</strong> ${vuln.recommendation}</p>
+                </div>`;
+                resultsContainer.innerHTML += card;
+            });
+        }
+
+        function getSeverityClass(severity) {
+            switch (severity) {
+                case 'Critical': return 'danger';
+                case 'Warning': return 'warning';
+                case 'Info': return 'info';
+                case 'Success': return 'success';
+                default: return 'secondary';
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #c33;
+            margin-bottom: 20px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stat.total .stat-value { color: #667eea; }
+        .stat.critical .stat-value { color: #e74c3c; }
+        .stat.warning .stat-value { color: #f39c12; }
+
+        .vulnerability {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-left: 4px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.2s;
+        }
+
+        .vulnerability:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .vulnerability.critical {
+            border-left-color: #e74c3c;
+            background: #fef5f5;
+        }
+
+        .vulnerability.warning {
+            border-left-color: #f39c12;
+            background: #fef9f5;
+        }
+
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .vuln-type {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .severity-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .severity-badge.critical {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .severity-badge.warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .vuln-description {
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .vuln-recommendation {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .vuln-recommendation strong {
+            color: #667eea;
+        }
+
+        .vuln-details {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .no-vulnerabilities {
+            text-align: center;
+            padding: 40px;
+            color: #28a745;
+        }
+
+        .no-vulnerabilities svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+        }
+
+        #results {
+            display: none;
+        }
+
+        .scan-info {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1 class="header-title">
+                <svg class="icon brand-icon" aria-hidden="true">
+                    <use xlink:href="#icon-search" />
+                </svg>
+                Vulnerability Scanner
+            </h1>
+            <p class="subtitle">Scan websites for common security vulnerabilities</p>
+            
+            <div class="input-group">
+                <input 
+                    type="text" 
+                    id="urlInput" 
+                    placeholder="Enter URL (e.g., example.com or https://example.com)"
+                    value="example.com"
+                >
+                <button id="scanButton" onclick="scanWebsite()">Scan</button>
+            </div>
+
+            <div id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <div class="loading">Scanning website...</div>
+            </div>
+
+            <div id="error" style="display: none;"></div>
+        </div>
+
+        <div id="results">
+            <div class="card">
+                <div class="scan-info">
+                    <div><strong>URL:</strong> <span id="scannedUrl"></span></div>
+                    <div><strong>Scan Time:</strong> <span id="scanTime"></span>s</div>
+                </div>
+
+                <div class="summary">
+                    <div class="stat total">
+                        <div class="stat-value" id="totalVulns">0</div>
+                        <div class="stat-label">Total Issues</div>
+                    </div>
+                    <div class="stat critical">
+                        <div class="stat-value" id="criticalVulns">0</div>
+                        <div class="stat-label">Critical</div>
+                    </div>
+                    <div class="stat warning">
+                        <div class="stat-value" id="warningVulns">0</div>
+                        <div class="stat-label">Warnings</div>
+                    </div>
+                </div>
+
+                <div id="vulnerabilities"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+
+        // Allow Enter key to trigger scan
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                scanWebsite();
+            }
+        });
+
+        async function scanWebsite() {
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Please enter a URL');
+                return;
+            }
+
+            // Show loading, hide results and errors
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('scanButton').disabled = true;
+
+            try {
+                const response = await fetch(`${API_URL}/scan`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'Scan failed');
+                }
+            } catch (error) {
+                showError('Failed to connect to scanner API. Make sure the server is running on ' + API_URL);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('scanButton').disabled = false;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `<div class="error"><strong>Error:</strong> ${message}</div>`;
+            errorDiv.style.display = 'block';
+        }
+
+        function displayResults(data) {
+            // Update summary
+            document.getElementById('scannedUrl').textContent = data.url;
+            document.getElementById('scanTime').textContent = data.scan_time;
+            document.getElementById('totalVulns').textContent = data.summary.total;
+            document.getElementById('criticalVulns').textContent = data.summary.critical;
+            document.getElementById('warningVulns').textContent = data.summary.warning;
+
+            // Display vulnerabilities
+            const vulnContainer = document.getElementById('vulnerabilities');
+            
+            if (data.vulnerabilities.length === 0) {
+                vulnContainer.innerHTML = `
+                    <div class="no-vulnerabilities">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h2>Great! No vulnerabilities detected</h2>
+                        <p>This website appears to have good security practices.</p>
+                    </div>
+                `;
+            } else {
+                vulnContainer.innerHTML = data.vulnerabilities.map(vuln => `
+                    <div class="vulnerability ${vuln.severity}">
+                        <div class="vuln-header">
+                            <div class="vuln-type">${vuln.type}</div>
+                            <span class="severity-badge ${vuln.severity}">${vuln.severity}</span>
+                        </div>
+                        <div class="vuln-description">${vuln.description}</div>
+                        <div class="vuln-recommendation">
+                            <strong>
+                                <svg class="icon recommendation-icon" aria-hidden="true">
+                                    <use xlink:href="#icon-lightbulb" />
+                                </svg>
+                                Recommendation:
+                            </strong> ${vuln.recommendation}
+                        </div>
+                        ${Object.keys(vuln.details).length > 0 ? `
+                            <div class="vuln-details">
+                                ${JSON.stringify(vuln.details, null, 2)}
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
