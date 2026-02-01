@@ -100,8 +100,11 @@
         <header class="cyber-header">
             <div class="header-content">
                 <div class="logo-section">
-                    <div class="logo-glow"></div>
-                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Checkmate Logo" class="logo-image">
+                    <div class="logo-icon">
+                        <div class="logo-glow"></div>
+                        <img src="{{ url_for('static', filename='logo.png') }}" alt="Checkmate Logo" class="logo-image">
+                    </div>
+                    <div class="panel-title logo-text">CHECKMATE</div>
                     <h1 class="main-title">Checkmate</h1>
                     <div class="subtitle">VULNERABILITY SCANNER</div>
                 </div>
@@ -143,9 +146,6 @@
                         <div class="btn-glow"></div>
                         <div class="scan-particles"></div>
                     </button>
-                </div>
-                <div class="quick-actions">
-                    <button id="sampleButton" class="quick-btn">DEMO TARGET</button>
                 </div>
             </section>
 
@@ -265,6 +265,20 @@
                     <!-- Vulnerabilities List -->
                     <div class="vulnerabilities-list" id="vulnerabilitiesList"></div>
 
+                    <!-- Recommended Solutions -->
+                    <div class="solutions-panel" id="solutionsPanel" style="display:none;">
+                        <div class="panel-header">
+                            <div class="panel-title">RECOMMENDED SOLUTIONS</div>
+                            <div class="panel-status">HELPFUL</div>
+                        </div>
+                        <p class="affiliate-disclosure" id="affiliateDisclosure"></p>
+                        <div class="solutions-grid" id="solutionsGrid"></div>
+                        <div class="solutions-comparison" id="solutionsComparison" style="display:none;">
+                            <div class="comparison-title">Compare Options</div>
+                            <div class="comparison-table" id="comparisonTable"></div>
+                        </div>
+                    </div>
+
                     <!-- Report Download Options -->
                     <div class="report-actions">
                         <button id="downloadReportJson" class="report-btn json-btn">
@@ -307,26 +321,46 @@
                 <div class="loading-text">INITIALIZING SCAN PROTOCOLS...</div>
             </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <footer class="cyber-footer">
-        <div class="footer-content">
-            <div class="footer-main">
-                <p>&copy; 2026 Checkmate Vulnerability Scanner. All rights reserved.</p>
-            </div>
-            <div class="footer-actions">
-                <button class="footer-btn" id="contactBtn" title="Contact Us" aria-label="Contact support">
-                    <svg class="footer-icon" aria-hidden="true">
-                        <use xlink:href="#icon-mail" />
-                    </svg>
-                    <span>CONTACT</span>
-                </button>
+        <!-- Analytics Consent -->
+        <div id="analyticsConsent" class="consent-banner" style="display: none;" role="dialog" aria-live="polite" aria-label="Analytics consent">
+            <div class="consent-card">
+                <div class="consent-title">Privacy-first analytics</div>
+                <p class="consent-text">
+                    We only collect aggregated scanner usage metrics to improve reliability. No PII, no raw URLs, no cross-site tracking.
+                </p>
+                <div class="consent-actions">
+                    <button class="consent-btn secondary" id="consentDeclineBtn">Decline</button>
+                    <button class="consent-btn primary" id="consentAcceptBtn">Allow analytics</button>
+                </div>
             </div>
         </div>
-    </footer>
 
-    <!-- Scripts -->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-</body>
+        <!-- Footer -->
+        <footer class="cyber-footer">
+            <div class="footer-content">
+                <div class="footer-main">
+                    <p>&copy; 2026 Checkmate Vulnerability Scanner. All rights reserved.</p>
+                </div>
+                <div class="footer-actions">
+                    <button class="footer-btn" id="privacyBtn" title="Analytics preferences" aria-label="Manage analytics preferences">
+                        <svg class="footer-icon" aria-hidden="true">
+                            <use xlink:href="#icon-info" />
+                        </svg>
+                        <span>ANALYTICS</span>
+                    </button>
+                    <button class="footer-btn" id="contactBtn" title="Contact Us" aria-label="Contact support">
+                        <svg class="footer-icon" aria-hidden="true">
+                            <use xlink:href="#icon-mail" />
+                        </svg>
+                        <span>CONTACT</span>
+                    </button>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Scripts -->
+        <script type="module" src="/firebaseConf.js"></script>
+        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    </body>
 </html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --panel: #111119;
+            --border: rgba(0,255,65,0.2);
+            --text: #f8f8f8;
+            --muted: #9aa0ac;
+            --accent: #00d9ff;
+            --accent-2: #00ff65;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 20% 20%, rgba(0,255,65,0.05), transparent 40%),
+                        radial-gradient(circle at 80% 0%, rgba(0,217,255,0.08), transparent 45%),
+                        #050509;
+            color: var(--text);
+            min-height: 100vh;
+            padding: 24px;
+        }
+        h1 { margin: 0 0 12px; font-size: 1.6rem; letter-spacing: 0.5px; }
+        p { margin: 0 0 10px; color: var(--muted); }
+        .grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+        .panel h2 { margin: 0 0 10px; font-size: 1rem; color: var(--accent-2); }
+        table { width: 100%; border-collapse: collapse; }
+        th, td {
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+        th { background: rgba(0,217,255,0.08); color: var(--text); text-align: left; }
+        tr:nth-child(every) { background: rgba(255,255,255,0.02); }
+        .meta { display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 0.95rem; margin-bottom: 16px; }
+        .pill { padding: 6px 10px; border: 1px solid var(--border); border-radius: 20px; color: var(--text); }
+        .muted { color: var(--muted); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <h1>Affiliate Analytics Dashboard</h1>
+    <p class="muted">Lightweight stats from affiliate_clicks. Refresh page to update.</p>
+
+    <div class="meta">
+        <span class="pill">Total Clicks: {{ summary.total_clicks or 0 }}</span>
+        <span class="pill">Affiliates Tracked: {{ summary.affiliates|length if summary.affiliates else 0 }}</span>
+        <span class="pill">Vulnerability Types: {{ summary.vulnerability_performance|length if summary.vulnerability_performance else 0 }}</span>
+    </div>
+
+    <div class="grid">
+        <div class="panel">
+            <h2>Affiliate Leaderboard</h2>
+            {% if summary.affiliates %}
+            <table>
+                <thead>
+                    <tr><th>Affiliate</th><th>Clicks</th><th>Conversions</th><th>Revenue</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in summary.affiliates %}
+                    <tr>
+                        <td>{{ row.affiliate_key }}</td>
+                        <td>{{ row.clicks }}</td>
+                        <td>{{ row.conversions or 0 }}</td>
+                        <td>{{ row.revenue or 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="muted">No data yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="panel">
+            <h2>Performance by Vulnerability</h2>
+            {% if summary.vulnerability_performance %}
+            <table>
+                <thead>
+                    <tr><th>Vulnerability</th><th>Clicks</th></tr>
+                </thead>
+                <tbody>
+                    {% for row in summary.vulnerability_performance %}
+                    <tr>
+                        <td>{{ row.vulnerability_type or 'unknown' }}</td>
+                        <td>{{ row.clicks }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="muted">No data yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

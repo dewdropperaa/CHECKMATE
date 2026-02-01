@@ -206,8 +206,23 @@ body::after {
 .logo-section {
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text {
+    margin-left: 0;
+    white-space: nowrap;
 }
 
 .logo-image {
@@ -518,6 +533,14 @@ body::after {
     flex-direction: column;
     align-items: center;
     position: relative;
+}
+
+.scanner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
 }
 
 .radar-container {
@@ -1232,6 +1255,99 @@ body::before {
     animation: glitch 0.3s ease-in-out;
 }
 
+/* Analytics Consent Banner */
+.consent-banner {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 90px;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    z-index: 1100;
+}
+
+.consent-card {
+    width: min(560px, 100%);
+    background: rgba(8, 12, 14, 0.98);
+    border: 1px solid var(--border-active);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 0 24px rgba(0, 217, 255, 0.25);
+    backdrop-filter: blur(10px);
+}
+
+.consent-title {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    color: var(--neon-blue);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.consent-text {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+}
+
+.consent-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.consent-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border: 1px solid var(--border-primary);
+    background: rgba(0, 255, 65, 0.08);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.consent-btn.primary {
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+    background: rgba(0, 217, 255, 0.1);
+}
+
+.consent-btn.secondary {
+    border-color: var(--border-primary);
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.consent-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 12px rgba(0, 217, 255, 0.3);
+}
+
+.consent-btn.secondary:hover {
+    box-shadow: 0 0 10px rgba(0, 255, 65, 0.25);
+}
+
+@media (max-width: 768px) {
+    .consent-banner {
+        bottom: 110px;
+    }
+
+    .consent-actions {
+        justify-content: stretch;
+    }
+
+    .consent-btn {
+        flex: 1;
+        text-align: center;
+    }
+}
+
 /* Typewriter Effect */
 @keyframes typewriter {
     from { width: 0; }
@@ -1409,7 +1525,6 @@ body::before {
 .results-content::-webkit-scrollbar-thumb:hover {
     background: var(--neon-blue);
     box-shadow: 0 0 15px rgba(0, 217, 255, 0.6);
-};
 }
 
 .btn-icon {

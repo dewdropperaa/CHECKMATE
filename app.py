@@ -13,6 +13,10 @@ from scanner import VulnerabilityScanner
 from io import BytesIO
 import json
 from datetime import datetime
+import mimetypes
+
+from services.recommendation_engine import build_recommendations
+from analytics.affiliate_tracking import log_click, get_summary
 
 import html
 
@@ -29,6 +33,8 @@ except ImportError:
     print("Warning: reportlab not installed. PDF generation will be unavailable.")
     print("Install with: pip install reportlab")
 
+mimetypes.add_type('application/javascript', '.js')
+
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
@@ -37,7 +43,16 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 def set_security_headers(response):
     """Add security headers to prevent common web vulnerabilities"""
     # Content Security Policy - prevents XSS and data injection attacks
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'"
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com; "
+        "script-src-elem 'self' 'unsafe-inline' https://www.gstatic.com https://unpkg.com https://cdn.jsdelivr.net https://www.googletagmanager.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self' http://localhost:4000 https://www.google-analytics.com https://region1.google-analytics.com "
+        "https://firebaseinstallations.googleapis.com https://www.googleapis.com https://unpkg.com https://www.gstatic.com"
+    )
     
     # X-Frame-Options - prevents clickjacking attacks
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
@@ -95,6 +110,11 @@ def index():
     """Serve the main web interface"""
     return render_template('index.html')
 
+@app.route('/firebaseConf.js')
+def firebase_conf():
+    """Serve Firebase config module for the frontend"""
+    return send_file('firebaseConf.js', mimetype='application/javascript')
+
 @app.route('/test')
 def test():
     """Serve the test page"""
@@ -134,6 +154,17 @@ def scan():
         # Perform scan
         scanner = VulnerabilityScanner(sanitized_url)
         results = scanner.scan()
+
+        # Attach contextual recommendations
+        try:
+            recommendations = build_recommendations(
+                results.get('vulnerabilities', []),
+                url=sanitized_url,
+                ab_variant=data.get('ab_variant') if isinstance(data, dict) else None,
+            )
+            results['recommendations'] = recommendations
+        except Exception as rec_err:
+            results['recommendations'] = {'error': str(rec_err)}
         
         return jsonify(results), 200 if results['success'] else 400
         
@@ -276,6 +307,48 @@ def generate_report():
             'success': False,
             'error': f'PDF generation failed: {str(e)}'
         }), 500
+
+@app.route('/affiliate-click', methods=['POST'])
+def affiliate_click():
+    """Log affiliate click events for analytics."""
+    try:
+        payload = request.get_json() or {}
+        affiliate_key = payload.get('affiliate_key')
+        if not affiliate_key:
+            return jsonify({'success': False, 'error': 'affiliate_key is required'}), 400
+        log_click({
+            'affiliate_key': affiliate_key,
+            'vulnerability_type': payload.get('vulnerability_type'),
+            'target_url': payload.get('target_url'),
+            'user_agent': request.headers.get('User-Agent'),
+            'ip_address': request.remote_addr,
+            'device': payload.get('device'),
+            'campaign': payload.get('campaign'),
+            'conversion_amount': payload.get('conversion_amount'),
+            'meta': json.dumps(payload.get('meta')) if payload.get('meta') else None,
+        })
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/admin/affiliate-dashboard', methods=['GET'])
+def affiliate_dashboard():
+    """Simple analytics dashboard page."""
+    summary = get_summary()
+    return render_template('admin_dashboard.html', summary=summary)
+
+@app.route('/admin/analytics-dashboard', methods=['GET'])
+def analytics_dashboard():
+    """Privacy-first analytics dashboard UI."""
+    return render_template('analytics_dashboard.html')
+
+@app.route('/legal/disclosures', methods=['GET'])
+def legal_disclosures():
+    return render_template('legal/disclosures.html')
+
+@app.route('/legal/privacy', methods=['GET'])
+def legal_privacy_policy():
+    return render_template('legal/privacy_policy.html')
 
 def generate_pdf_report(scan_data):
     """Generate a PDF report from scan data"""

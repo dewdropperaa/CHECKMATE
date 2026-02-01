@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #0b0b10; color: #f3f5f7; margin: 0; padding: 24px; line-height: 1.6; }
+        .card { max-width: 960px; margin: 0 auto; background: #11111a; border: 1px solid rgba(0,255,65,0.2); border-radius: 12px; padding: 28px; box-shadow: 0 12px 32px rgba(0,0,0,0.35); }
+        h1 { margin-top: 0; letter-spacing: 0.4px; }
+        h2 { color: #00d9ff; margin-bottom: 8px; }
+        p, li { color: #c7cbd1; }
+        ul { padding-left: 18px; }
+        a { color: #00ff9c; }
+        .muted { color: #9aa0ac; font-size: 0.95rem; }
+        .section { margin-bottom: 20px; }
+        code { background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Privacy Policy</h1>
+        <p class="muted">Last updated: {{ datetime.utcnow().strftime('%Y-%m-%d') if datetime else '2026-02-01' }}</p>
+
+        <div class="section">
+            <h2>Summary</h2>
+            <p>This scanner is designed for professional security assessments. We collect <strong>minimal, privacy-first analytics</strong> to improve reliability, capacity planning, and security. We do not collect or sell personal data. We do not use cross‑site tracking or fingerprinting.</p>
+        </div>
+
+        <div class="section">
+            <h2>Data We Collect (Analytics)</h2>
+            <ul>
+                <li>Aggregated scan activity (e.g., scan_started, scan_completed, scan_failed).</li>
+                <li>Anonymous user identifiers derived from API keys or client IDs (non‑reversible).</li>
+                <li>Truncated or hashed IP addresses for abuse prevention and rate limiting.</li>
+                <li>Aggregated vulnerability counts by severity and type.</li>
+                <li>Hashed target domain identifiers (no raw URLs stored).</li>
+            </ul>
+            <p>We do <strong>not</strong> store raw URLs, payloads, or PII in analytics logs.</p>
+        </div>
+
+        <div class="section">
+            <h2>Lawful Basis & GDPR</h2>
+            <p>We process analytics data under legitimate interest to ensure platform security and reliability. Where required, we request consent before enabling analytics.</p>
+        </div>
+
+        <div class="section">
+            <h2>Data Retention</h2>
+            <p>Analytics data is retained for <code>[RETENTION_PERIOD]</code> and then removed or aggregated. Access is restricted to authorized administrators.</p>
+        </div>
+
+        <div class="section">
+            <h2>Security Controls</h2>
+            <ul>
+                <li>Encryption in transit (TLS) and at rest.</li>
+                <li>Role‑based access controls (admin‑only dashboard).</li>
+                <li>Rate limiting and audit logging for analytics ingestion.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Your Choices</h2>
+            <ul>
+                <li>You can opt out of analytics tracking via the consent banner.</li>
+                <li>Core scanning features remain available without analytics.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Contact</h2>
+            <p>If you have privacy questions or requests, contact <a href="mailto:[CONTACT_EMAIL]">[CONTACT_EMAIL]</a>.</p>
+        </div>
+
+        <p class="muted">Replace placeholders such as <code>[RETENTION_PERIOD]</code> and <code>[CONTACT_EMAIL]</code> with your organization’s details.</p>
+    </div>
+</body>
+</html>

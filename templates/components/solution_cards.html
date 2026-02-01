@@ -1,0 +1,25 @@
+{% macro solution_card(item) %}
+<div class="solution-card" data-affiliate="{{ item.solution_key }}">
+    <div class="solution-header">
+        <div class="solution-name">{{ item.name }}</div>
+        <div class="solution-badges">
+            {% for badge in item.badges %}
+            <span class="badge">{{ badge }}</span>
+            {% endfor %}
+            {% if item.tier == 'free' %}<span class="badge badge-free">Free</span>{% endif %}
+        </div>
+    </div>
+    <p class="solution-description">{{ item.description }}</p>
+    <div class="solution-meta">
+        {% if item.commission %}<span class="meta">Commission: {{ item.commission }}</span>{% endif %}
+        <span class="meta">Priority: {{ item.priority }}</span>
+    </div>
+    <div class="solution-actions">
+        <a href="{{ item.url }}" target="_blank" rel="noopener" class="btn btn-primary" data-affiliate-link>
+            {{ item.cta or 'View Solution' }}
+        </a>
+        <button class="btn btn-secondary" data-compare="{{ item.solution_key }}">Compare</button>
+    </div>
+    <div class="solution-disclosure">Affiliate Link: We may earn a commission if you purchase through this link, at no additional cost to you.</div>
+</div>
+{% endmacro %}

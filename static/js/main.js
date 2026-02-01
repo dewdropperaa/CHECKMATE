@@ -30,11 +30,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const scanTime = document.getElementById('scanTime');
     const vulnerabilitiesList = document.getElementById('vulnerabilitiesList');
 
+    // Solutions DOM
+    const solutionsPanel = document.getElementById('solutionsPanel');
+    const solutionsGrid = document.getElementById('solutionsGrid');
+    const affiliateDisclosure = document.getElementById('affiliateDisclosure');
+    const comparisonTable = document.getElementById('comparisonTable');
+    const solutionsComparison = document.getElementById('solutionsComparison');
+
     // Progress Bars
     const totalBar = document.getElementById('totalBar');
     const criticalBar = document.getElementById('criticalBar');
     const warningBar = document.getElementById('warningBar');
     const infoBar = document.getElementById('infoBar');
+
+    // Analytics Consent Elements
+    const analyticsConsent = document.getElementById('analyticsConsent');
+    const consentAcceptBtn = document.getElementById('consentAcceptBtn');
+    const consentDeclineBtn = document.getElementById('consentDeclineBtn');
+    const privacyBtn = document.getElementById('privacyBtn');
 
     // State Variables
     let scanInProgress = false;
@@ -52,24 +65,80 @@ document.addEventListener('DOMContentLoaded', function() {
         logToConsole('[STANDBY] Awaiting target input...', 'info');
 
         // Event Listeners
-        sampleButton.addEventListener('click', loadSampleTarget);
-        scanButton.addEventListener('click', initiateScan);
-        urlInput.addEventListener('keypress', handleKeyPress);
-        urlInput.addEventListener('focus', handleInputFocus);
-        urlInput.addEventListener('blur', handleInputBlur);
+        if (sampleButton) {
+            sampleButton.addEventListener('click', loadSampleTarget);
+        }
+        if (scanButton) {
+            scanButton.addEventListener('click', initiateScan);
+        }
+        if (urlInput) {
+            urlInput.addEventListener('keypress', handleKeyPress);
+            urlInput.addEventListener('focus', handleInputFocus);
+            urlInput.addEventListener('blur', handleInputBlur);
+        }
 
         // Header Controls
-        document.getElementById('settingsBtn').addEventListener('click', showSettings);
-        document.getElementById('refreshBtn').addEventListener('click', refreshSystem);
-        document.getElementById('infoBtn').addEventListener('click', showInfo);
+        const settingsBtn = document.getElementById('settingsBtn');
+        if (settingsBtn) settingsBtn.addEventListener('click', showSettings);
+        const refreshBtn = document.getElementById('refreshBtn');
+        if (refreshBtn) refreshBtn.addEventListener('click', refreshSystem);
+        const infoBtn = document.getElementById('infoBtn');
+        if (infoBtn) infoBtn.addEventListener('click', showInfo);
 
         // Footer Controls
-        document.getElementById('contactBtn').addEventListener('click', showContact);
+        const contactBtn = document.getElementById('contactBtn');
+        if (contactBtn) contactBtn.addEventListener('click', showContact);
+
+        // Analytics Consent
+        setupAnalyticsConsent();
 
         // Report Download Buttons
-        document.getElementById('downloadReportJson').addEventListener('click', downloadReportJson);
-        document.getElementById('downloadReportHtml').addEventListener('click', downloadReportHtml);
-        document.getElementById('downloadReportPdf').addEventListener('click', downloadReportPdf);
+        const downloadReportJsonBtn = document.getElementById('downloadReportJson');
+        if (downloadReportJsonBtn) downloadReportJsonBtn.addEventListener('click', downloadReportJson);
+        const downloadReportHtmlBtn = document.getElementById('downloadReportHtml');
+        if (downloadReportHtmlBtn) downloadReportHtmlBtn.addEventListener('click', downloadReportHtml);
+        const downloadReportPdfBtn = document.getElementById('downloadReportPdf');
+        if (downloadReportPdfBtn) downloadReportPdfBtn.addEventListener('click', downloadReportPdf);
+    }
+
+    function setupAnalyticsConsent() {
+        if (privacyBtn) {
+            privacyBtn.addEventListener('click', () => {
+                if (!analyticsConsent) return;
+                const isVisible = analyticsConsent.style.display === 'flex';
+                analyticsConsent.style.display = isVisible ? 'none' : 'flex';
+            });
+        }
+
+        if (consentAcceptBtn) {
+            consentAcceptBtn.addEventListener('click', () => handleConsent(true));
+        }
+
+        if (consentDeclineBtn) {
+            consentDeclineBtn.addEventListener('click', () => handleConsent(false));
+        }
+
+        const storedConsent = localStorage.getItem('analytics_consent');
+        if (analyticsConsent && storedConsent === null) {
+            analyticsConsent.style.display = 'flex';
+        }
+    }
+
+    function handleConsent(granted) {
+        const normalized = granted ? 'true' : 'false';
+        localStorage.setItem('analytics_consent', normalized);
+        if (window.setAnalyticsConsent) {
+            window.setAnalyticsConsent(granted);
+        }
+        if (analyticsConsent) {
+            analyticsConsent.style.display = 'none';
+        }
+        logToConsole(`[PRIVACY] Analytics ${granted ? 'enabled' : 'disabled'}.`, granted ? 'success' : 'warning');
+    }
+
+    function logAnalyticsEvent(eventName, params = {}) {
+        if (!window.logFirebaseEvent) return;
+        window.logFirebaseEvent(eventName, params);
     }
 
     function handleKeyPress(e) {
@@ -142,8 +211,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function isValidUrl(string) {
         try {
             // Add protocol if missing for validation
-            const urlToTest = string.startsWith('http://') || string.startsWith('https://') 
-                ? string 
+            const urlToTest = string.startsWith('http://') || string.startsWith('https://')
+                ? string
                 : 'http://' + string;
             new URL(urlToTest);
             return true;
@@ -157,10 +226,16 @@ document.addEventListener('DOMContentLoaded', function() {
         scanStartTime = Date.now();
         currentProgress = 0;
 
+        logAnalyticsEvent('scan_started', { source: 'web_ui' });
+
         // Update UI State
-        scanButton.disabled = true;
-        sampleButton.disabled = true;
-        scanButton.textContent = 'SCANNING...';
+        if (scanButton) {
+            scanButton.disabled = true;
+            scanButton.textContent = 'SCANNING...';
+        }
+        if (sampleButton) {
+            sampleButton.disabled = true;
+        }
         scanStatus.textContent = 'ACTIVE';
         resultsStatus.textContent = 'PROCESSING';
 
@@ -206,10 +281,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function startScanAnimation() {
         // Animate radar
         const radarRing = document.getElementById('radarRing');
-        radarRing.style.animation = 'radarSweep 1s linear infinite';
+        if (radarRing) {
+            radarRing.style.animation = 'radarSweep 1s linear infinite';
+        }
 
         // Start particle effects
-        scanButton.classList.add('scanning');
+        if (scanButton) {
+            scanButton.classList.add('scanning');
+        }
     }
 
     function updateScanProgress() {
@@ -244,50 +323,63 @@ document.addEventListener('DOMContentLoaded', function() {
     function completeScan(data) {
         clearInterval(scanInterval);
         currentProgress = 100;
-        scanPercent.textContent = '100%';
+        if (scanPercent) scanPercent.textContent = '100%';
 
         // Hide loading overlay
-        loadingOverlay.style.display = 'none';
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+
+        // Calculate scan time
+        const elapsed = (Date.now() - scanStartTime) / 1000;
+        if (scanTime) scanTime.textContent = elapsed.toFixed(2);
+
+        scanInProgress = false;
+
+        if (!data || !data.success) {
+            handleScanError((data && (data.error || data.message)) || 'Unknown error occurred during scan');
+            return;
+        }
 
         // Update final status
         scanStatus.textContent = 'COMPLETE';
         resultsStatus.textContent = 'ANALYSIS COMPLETE';
 
-        // Calculate scan time
-        const elapsed = (Date.now() - scanStartTime) / 1000;
-        scanTime.textContent = elapsed.toFixed(2);
-
         logToConsole(`[COMPLETE] Scan finished in ${elapsed.toFixed(2)} seconds`, 'success');
 
-        if (data.success) {
-            // Store scan data for report generation
-            lastScanData = data;
-            displayResults(data);
-            logToConsole('[REPORT] Scan data ready for export', 'success');
-        } else {
-            handleScanError(data.error || 'Scan failed');
-        }
+        // Store scan data for report generation
+        lastScanData = data;
+        displayResults(data);
+        logToConsole('[REPORT] Scan data ready for export', 'success');
 
         // Reset UI state
-        scanInProgress = false;
-        scanButton.disabled = false;
-        sampleButton.disabled = false;
-        scanButton.textContent = 'INITIATE SCAN';
-        scanButton.classList.remove('scanning');
+        if (scanButton) {
+            scanButton.disabled = false;
+            scanButton.textContent = 'INITIATE SCAN';
+            scanButton.classList.remove('scanning');
+        }
+        if (sampleButton) {
+            sampleButton.disabled = false;
+        }
     }
 
-    function handleScanError(error) {
+    function handleScanError(message) {
         clearInterval(scanInterval);
-        loadingOverlay.style.display = 'none';
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
         scanInProgress = false;
-        scanButton.disabled = false;
-        sampleButton.disabled = false;
-        scanButton.textContent = 'INITIATE SCAN';
-        scanStatus.textContent = 'ERROR';
-        resultsStatus.textContent = 'FAILED';
 
-        logToConsole(`[ERROR] ${error}`, 'error');
-        showError(error);
+        if (scanStatus) scanStatus.textContent = 'ERROR';
+        if (resultsStatus) resultsStatus.textContent = 'FAILED';
+
+        if (scanButton) {
+            scanButton.disabled = false;
+            scanButton.textContent = 'INITIATE SCAN';
+            scanButton.classList.remove('scanning');
+        }
+        if (sampleButton) {
+            sampleButton.disabled = false;
+        }
+
+        showError(message);
+        logToConsole(`[ERROR] ${message}`, 'error');
     }
 
     function displayResults(data) {
@@ -329,10 +421,98 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
 
+        // Render recommendations
+        // renderSolutions(data.recommendations);
+        solutionsPanel.style.display = 'none';
+        solutionsComparison.style.display = 'none';
+
         // Scroll to results
         setTimeout(() => {
             resultsPanel.scrollIntoView({ behavior: 'smooth' });
         }, 1000);
+    }
+
+    function renderSolutions(recommendations) {
+        if (!recommendations || !recommendations.items || !recommendations.items.length) {
+            solutionsPanel.style.display = 'none';
+            return;
+        }
+
+        solutionsPanel.style.display = 'block';
+        affiliateDisclosure.textContent = recommendations.disclosure || 'Affiliate Disclosure: We may earn a commission if you purchase through these links.';
+
+        const cardsHtml = recommendations.items.map(item => `
+            <div class="solution-card" data-affiliate="${item.solution_key}">
+                <div class="solution-card-header">
+                    <div class="solution-name">${item.name}</div>
+                    <div class="solution-badges">
+                        ${(item.badges || []).map(b => `<span class="badge">${b}</span>`).join('')}
+                        ${item.tier === 'free' ? '<span class="badge badge-free">Free</span>' : ''}
+                    </div>
+                </div>
+                <p class="solution-description">${item.description || ''}</p>
+                <div class="solution-meta">
+                    ${item.commission ? `<span class="meta">Commission: ${item.commission}</span>` : ''}
+                    <span class="meta">Priority: ${item.priority}</span>
+                </div>
+                <div class="solution-actions">
+                    <a href="${item.url}" class="btn btn-primary solution-link" data-affiliate-key="${item.solution_key}" data-vuln="${item.vulnerability}" target="_blank" rel="noopener">
+                        ${item.cta || 'View Solution'}
+                    </a>
+                    <button class="btn btn-secondary" data-compare="${item.solution_key}">Compare</button>
+                </div>
+                <div class="solution-disclosure">Affiliate Link: We may earn a commission if you purchase through this link, at no additional cost to you.</div>
+            </div>
+        `).join('');
+
+        solutionsGrid.innerHTML = cardsHtml;
+
+        // Click tracking
+        solutionsGrid.querySelectorAll('.solution-link').forEach(link => {
+            link.addEventListener('click', () => {
+                logAffiliateClick({
+                    affiliate_key: link.dataset.affiliateKey,
+                    vulnerability_type: link.dataset.vuln,
+                    target_url: lastScanData?.url,
+                    device: navigator.userAgent,
+                });
+            });
+        });
+
+        // Build comparison table (basic)
+        if (recommendations.items.length > 1) {
+            solutionsComparison.style.display = 'block';
+            const rows = recommendations.items.slice(0, 4).map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.tier || ''}</td>
+                    <td>${(item.badges || []).join(', ')}</td>
+                    <td>${item.cta || ''}</td>
+                </tr>
+            `).join('');
+            comparisonTable.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Solution</th><th>Tier</th><th>Highlights</th><th>CTA</th></tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        } else {
+            solutionsComparison.style.display = 'none';
+        }
+    }
+
+    function logAffiliateClick(payload) {
+        try {
+            fetch('/affiliate-click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+        } catch (_) {
+            // non-blocking
+        }
     }
 
     function animateProgressBar(bar, value, max) {

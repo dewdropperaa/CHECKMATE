@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate & Privacy Disclosures</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #0b0b10; color: #f3f5f7; margin: 0; padding: 24px; line-height: 1.6; }
+        .card { max-width: 900px; margin: 0 auto; background: #11111a; border: 1px solid rgba(0,255,65,0.2); border-radius: 10px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+        h1 { margin-top: 0; letter-spacing: 0.4px; }
+        h2 { color: #00d9ff; margin-bottom: 8px; }
+        p { color: #c7cbd1; }
+        ul { color: #c7cbd1; }
+        a { color: #00ff9c; }
+        .muted { color: #9aa0ac; font-size: 0.95rem; }
+        .section { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Affiliate & Privacy Disclosures</h1>
+        <p class="muted">Last updated: {{ datetime.utcnow().strftime('%Y-%m-%d') if datetime else '2026-01-31' }}</p>
+
+        <div class="section">
+            <h2>Affiliate Links</h2>
+            <p>Some solution links are affiliate links. We may earn a commission if you purchase through them, at no extra cost to you. We always include free or low-cost options first.</p>
+            <ul>
+                <li>Links include UTM parameters and affiliate IDs to track referrals.</li>
+                <li>We prioritize relevance and practicality over payout.</li>
+                <li>Commissions do not influence vulnerability severity or detection.</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Data Collected</h2>
+            <p>When you click a recommendation, we may log:</p>
+            <ul>
+                <li>Affiliate key, vulnerability type, and target URL (domain only).</li>
+                <li>Timestamp, IP address, user agent, and basic device string.</li>
+                <li>Optional campaign or conversion metadata if provided.</li>
+            </ul>
+            <p>We do <strong>not</strong> sell personal data. Data is used to improve recommendations and measure performance.</p>
+        </div>
+
+        <div class="section">
+            <h2>Opt-Out</h2>
+            <p>You can avoid affiliate tracking by not clicking outbound solution links or by using a tracker-blocking browser extension. Core scanning features remain unaffected.</p>
+        </div>
+
+        <div class="section">
+            <h2>Contact</h2>
+            <p>For questions about disclosures or data handling, contact <a href="mailto:nourkabbouri022@gmail.com">nourkabbouri022@gmail.com</a>.</p>
+        </div>
+    </div>
+</body>
+</html>
