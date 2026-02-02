@@ -14,6 +14,13 @@ import sys
 from datetime import datetime
 import json
 
+# Optional affiliate recommendation engine
+try:
+    from services.recommendation_engine import build_recommendations
+    RECOMMENDER_AVAILABLE = True
+except Exception:
+    RECOMMENDER_AVAILABLE = False
+
 try:
     from rich.console import Console
     from rich.table import Table
@@ -346,7 +353,7 @@ class VulnerabilityScanner:
             critical_count = sum(1 for v in self.vulnerabilities if v['severity'] == 'critical')
             warning_count = sum(1 for v in self.vulnerabilities if v['severity'] == 'warning')
             
-            return {
+            result = {
                 'success': True,
                 'url': self.url,
                 'vulnerabilities': self.vulnerabilities,
@@ -355,8 +362,17 @@ class VulnerabilityScanner:
                     'critical': critical_count,
                     'warning': warning_count
                 },
-                'scan_time': round(time.time() - self.start_time, 2)
+                'scan_time': round(time.time() - self.start_time, 2),
+                'hygiene_score': max(1, 10 - len(self.vulnerabilities))
             }
+
+            if RECOMMENDER_AVAILABLE:
+                try:
+                    result['recommendations'] = build_recommendations(self.vulnerabilities, url=self.url)
+                except Exception:
+                    result['recommendations'] = {'error': 'recommendation engine failed'}
+
+            return result
             
         except requests.exceptions.Timeout:
             return {
